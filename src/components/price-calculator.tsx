@@ -103,8 +103,9 @@ export function PriceCalculator() {
     const usdPrice = randomGame.usdPrice;
     
     const baseArs = usdPrice * exchangeRate;
-    const profit = baseArs * 0.10;
-    const finalArs = baseArs + profit;
+    const finalPriceBeforeRounding = baseArs * 1.10;
+    const finalArs = Math.round(finalPriceBeforeRounding / 5) * 5;
+    const profit = finalArs - baseArs;
 
     setResult({
       game: randomGame,
@@ -209,7 +210,7 @@ export function PriceCalculator() {
                     <span className="font-medium text-foreground">{formatCurrency(result.prices.baseArs)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Tu ganancia (10%)</span>
+                    <span className="text-muted-foreground">Tu ganancia</span>
                     <span className="font-medium text-foreground">
                         + {formatCurrency(result.profit)}
                     </span>
