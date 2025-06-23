@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowRight, Loader2, AlertCircle, TrendingUp, HelpCircle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
 
 type CalculationResult = {
   usdPrice: number;
@@ -17,7 +16,7 @@ type CalculationResult = {
     baseArs: number;
     finalArs: number;
   };
-  taxes: number;
+  profit: number;
 };
 
 const formatCurrency = (value: number, currency = "ARS") => {
@@ -28,10 +27,7 @@ const formatCurrency = (value: number, currency = "ARS") => {
   }).format(value);
 };
 
-// As of mid-2024. This can change.
-const TAX_RATE = 0.60; 
-
-export function PriceCalculator() {
+export function AdminPriceCalculator() {
   const [usdInput, setUsdInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,26 +84,26 @@ export function PriceCalculator() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const baseArs = usdPrice * exchangeRate;
-    const taxes = baseArs * TAX_RATE;
-    const finalArs = baseArs + taxes;
+    const finalPriceBeforeRounding = baseArs * 1.10;
+    const finalArs = Math.round(finalPriceBeforeRounding / 5) * 5;
+    const profit = finalArs - baseArs;
 
     setResult({
       usdPrice: usdPrice,
       exchangeRate: exchangeRate,
       prices: { baseArs, finalArs },
-      taxes: taxes,
+      profit: profit,
     });
 
     setIsLoading(false);
   };
 
   return (
-    <TooltipProvider>
     <Card className="w-full shadow-lg overflow-hidden">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Calculá el precio final</CardTitle>
+        <CardTitle className="font-headline text-2xl">Calculá tu precio de venta</CardTitle>
         <CardDescription>
-          Ingresá el precio en dólares de un juego para saber cuánto te costará en pesos argentinos con impuestos.
+          Ingresá el precio en dólares del juego y te mostramos el precio final de venta con tu ganancia.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -172,11 +168,11 @@ export function PriceCalculator() {
         <CardFooter className="flex flex-col items-start gap-4 pt-4 animate-in fade-in-50">
              <div className="flex justify-between items-center w-full">
                  <div className="flex-1">
-                    <h3 className="text-muted-foreground text-sm">Precio del juego (USD)</h3>
+                    <h3 className="text-muted-foreground text-sm">Precio Ingresado (USD)</h3>
                     <p className="text-xl font-semibold text-foreground">{formatCurrency(result.usdPrice, "USD")}</p>
                 </div>
                 <div className="text-right p-2 border rounded-lg bg-secondary/50">
-                     <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Cripto</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Cripto</div>
                     <p className="font-semibold">{formatCurrency(result.exchangeRate)}</p>
                 </div>
             </div>
@@ -185,38 +181,27 @@ export function PriceCalculator() {
 
             <div className="w-full space-y-2 text-sm">
                 <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Precio base en pesos</span>
+                    <span className="text-muted-foreground">Precio base (costo)</span>
                     <span className="font-medium text-foreground">{formatCurrency(result.prices.baseArs)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <span>Impuestos (aprox. {TAX_RATE * 100}%)</span>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Incluye Impuesto PAIS y Percepción de Ganancias.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </div>
+                    <span className="text-muted-foreground">Tu ganancia</span>
                     <span className="font-medium text-foreground">
-                        + {formatCurrency(result.taxes)}
+                        + {formatCurrency(result.profit)}
                     </span>
                 </div>
             </div>
 
             <Separator className="my-2" />
 
-            <div className="bg-primary/90 w-full p-4 rounded-lg flex justify-between items-center">
-                <span className="text-xl font-bold text-primary-foreground">Precio Final a Pagar</span>
-                <span className="text-2xl font-bold text-primary-foreground">{formatCurrency(result.prices.finalArs)}</span>
+            <div className="bg-accent/50 w-full p-4 rounded-lg flex justify-between items-center">
+                <span className="text-xl font-bold text-accent-foreground">Precio Final de Venta</span>
+                <span className="text-2xl font-bold text-accent-foreground">{formatCurrency(result.prices.finalArs)}</span>
             </div>
-            <p className="text-xs text-muted-foreground text-center w-full">Este es el precio final estimado que pagarías con tarjeta.</p>
+            <p className="text-xs text-muted-foreground text-center w-full">Este es el precio final al que deberías vender el juego.</p>
 
         </CardFooter>
       )}
     </Card>
-    </TooltipProvider>
   );
 }
