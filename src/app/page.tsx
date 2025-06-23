@@ -14,7 +14,7 @@ export default function Home() {
                 <div className="w-32 h-1 bg-primary rounded-full" />
             </div>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Ingresá el link de un juego de Steam para calcular tu precio de venta final, con tu 10% de ganancia incluido.
+            Ingresá el precio en dólares de un juego para calcular tu precio de venta final, con tu 10% de ganancia incluido.
           </p>
         </header>
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,15 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
 
-type GameData = {
-  name: string;
-  image: string;
-  usdPrice: number;
-  "data-ai-hint": string;
-};
-
 type CalculationResult = {
-  game: GameData;
+  usdPrice: number;
   exchangeRate: number;
   prices: {
     baseArs: number;
@@ -36,7 +28,7 @@ const formatCurrency = (value: number, currency = "ARS") => {
 };
 
 export function PriceCalculator() {
-  const [steamUrl, setSteamUrl] = useState("");
+  const [usdInput, setUsdInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CalculationResult | null>(null);
@@ -69,11 +61,17 @@ export function PriceCalculator() {
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!steamUrl) {
-      setError("Por favor, ingresá una URL o App ID de Steam.");
+    if (!usdInput) {
+      setError("Por favor, ingresá un precio en dólares.");
       return;
     }
     
+    const usdPrice = parseFloat(usdInput);
+    if (isNaN(usdPrice) || usdPrice <= 0) {
+      setError("Por favor, ingresá un precio válido.");
+      return;
+    }
+
     if (!exchangeRate) {
         setError("El valor del dólar aún no está disponible. Por favor, espera un momento.");
         return;
@@ -83,32 +81,15 @@ export function PriceCalculator() {
     setError(null);
     setResult(null);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const mockGames: GameData[] = [
-        { name: "Baldur's Gate 3", image: "https://placehold.co/600x400.png", usdPrice: 59.99, "data-ai-hint": "fantasy rpg" },
-        { name: "Elden Ring", image: "https://placehold.co/600x400.png", usdPrice: 49.99, "data-ai-hint": "dark fantasy" },
-        { name: "Helldivers 2", image: "https://placehold.co/600x400.png", usdPrice: 39.99, "data-ai-hint": "sci-fi shooter" },
-        { name: "Stardew Valley", image: "https://placehold.co/600x400.png", usdPrice: 14.99, "data-ai-hint": "farming simulator" },
-    ];
-    
-    const steamAppIdRegex = /steampowered\.com\/app\/(\d+)/;
-    const match = steamUrl.match(steamAppIdRegex);
-
-    if (!match && !/^\d+$/.test(steamUrl)) {
-        setError("URL o App ID de Steam no válido. Usando datos de ejemplo para la demostración.");
-    }
-
-    const randomGame = mockGames[Math.floor(Math.random() * mockGames.length)];
-    const usdPrice = randomGame.usdPrice;
-    
     const baseArs = usdPrice * exchangeRate;
     const finalPriceBeforeRounding = baseArs * 1.10;
     const finalArs = Math.round(finalPriceBeforeRounding / 5) * 5;
     const profit = finalArs - baseArs;
 
     setResult({
-      game: randomGame,
+      usdPrice: usdPrice,
       exchangeRate: exchangeRate,
       prices: { baseArs, finalArs },
       profit: profit,
@@ -122,21 +103,23 @@ export function PriceCalculator() {
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Calculá tu precio de venta</CardTitle>
         <CardDescription>
-          Pegá el link del juego o su App ID y te mostramos el precio final de venta con tu ganancia.
+          Ingresá el precio en dólares del juego y te mostramos el precio final de venta con tu ganancia.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleCalculate} className="flex flex-col sm:flex-row items-center gap-3">
           <Input
-            type="text"
-            placeholder="https://store.steampowered.com/app/1091500/..."
-            value={steamUrl}
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="14.99"
+            value={usdInput}
             onChange={(e) => {
-                setSteamUrl(e.target.value);
+                setUsdInput(e.target.value);
                 if (error) setError(null);
             }}
             className="flex-grow text-base"
-            aria-label="URL o App ID de Steam"
+            aria-label="Precio del juego en USD"
           />
           <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !exchangeRate}>
             {isLoading || !exchangeRate ? (
@@ -154,19 +137,19 @@ export function PriceCalculator() {
 
       {isLoading && (
         <CardFooter className="flex flex-col gap-4 pt-4">
-            <div className="flex items-center space-x-4 w-full">
-                <Skeleton className="h-24 w-24 rounded-lg" />
-                <div className="space-y-2 flex-1">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-5 w-1/2" />
+             <div className="w-full space-y-3">
+                <div className="flex justify-between items-center">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-6 w-16" />
+                    </div>
+                    <Skeleton className="h-12 w-28 rounded-lg" />
                 </div>
-            </div>
-            <Separator/>
-            <div className="w-full space-y-3">
+                <Separator/>
                 <Skeleton className="h-5 w-full" />
                 <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-8 w-full mt-2" />
+                <Separator/>
+                <Skeleton className="h-12 w-full mt-1" />
             </div>
         </CardFooter>
       )}
@@ -183,18 +166,10 @@ export function PriceCalculator() {
 
       {result && (
         <CardFooter className="flex flex-col items-start gap-4 pt-4 animate-in fade-in-50">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full">
-                <Image
-                    src={result.game.image}
-                    alt={result.game.name}
-                    width={96}
-                    height={96}
-                    className="rounded-lg border object-cover aspect-square"
-                    data-ai-hint={result.game['data-ai-hint']}
-                />
-                <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-foreground">{result.game.name}</h3>
-                    <p className="text-lg text-muted-foreground">{formatCurrency(result.game.usdPrice, "USD")}</p>
+             <div className="flex justify-between items-center w-full">
+                 <div className="flex-1">
+                    <h3 className="text-muted-foreground text-sm">Precio Ingresado (USD)</h3>
+                    <p className="text-xl font-semibold text-foreground">{formatCurrency(result.usdPrice, "USD")}</p>
                 </div>
                 <div className="text-right p-2 border rounded-lg bg-secondary/50">
                     <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Cripto</div>
