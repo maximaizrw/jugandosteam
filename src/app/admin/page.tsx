@@ -1,9 +1,76 @@
+"use client";
+
+import { useState } from 'react';
 import { AdminPriceCalculator } from '@/components/admin-price-calculator';
-import { Gamepad2, Home } from 'lucide-react';
+import { Gamepad2, Home, LockKeyhole, LogIn, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function AdminHome() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === '2867') {
+      setIsAuthenticated(true);
+      setError('');
+    } else {
+      setError('Contraseña incorrecta.');
+      setPassword('');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+        <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
+            <Card className="w-full max-w-sm">
+                <CardHeader className="text-center">
+                    <div className="mx-auto bg-primary/20 p-3 rounded-full mb-4 inline-block">
+                        <LockKeyhole className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-2xl font-semibold tracking-tight">Acceso de Administrador</CardTitle>
+                    <CardDescription>Ingresá la contraseña para continuar.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleLogin} className="space-y-4">
+                        <Input
+                            type="password"
+                            placeholder="Contraseña"
+                            value={password}
+                            onChange={(e) => {
+                                setPassword(e.target.value)
+                                if (error) setError('');
+                            }}
+                            className="text-center"
+                            aria-label="Contraseña de administrador"
+                        />
+                         {error && (
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+                        <Button type="submit" className="w-full">
+                            <LogIn className="mr-2 h-4 w-4" /> Ingresar
+                        </Button>
+                    </form>
+                    <div className="mt-6 text-center">
+                        <Button variant="link" asChild>
+                            <Link href="/"><Home className="mr-2 h-4 w-4" />Volver al inicio</Link>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+        </main>
+    );
+  }
+
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-8 md:p-12">
       <div className="w-full max-w-2xl">
