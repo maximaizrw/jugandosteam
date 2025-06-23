@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { formatCurrency } from "@/lib/utils";
 
 type CalculationResult = {
   usdPrice: number;
@@ -19,67 +21,36 @@ type CalculationResult = {
   profit: number;
 };
 
-const formatCurrency = (value: number, currency = "ARS") => {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(value);
-};
-
 export function AdminPriceCalculator() {
   const [usdInput, setUsdInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [calculationError, setCalculationError] = useState<string | null>(null);
   const [result, setResult] = useState<CalculationResult | null>(null);
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchExchangeRate = async () => {
-      try {
-        const response = await fetch("https://dolarapi.com/v1/dolares/cripto");
-        if (!response.ok) {
-          throw new Error("No se pudo obtener el valor del dólar en este momento.");
-        }
-        const data = await response.json();
-        if (data && data.venta) {
-          setExchangeRate(data.venta);
-        } else {
-          throw new Error("La respuesta de la API de dólar no es válida.");
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Ocurrió un error al obtener el valor del dólar.");
-        }
-      }
-    };
-
-    fetchExchangeRate();
-  }, []);
+  
+  const { exchangeRate, isLoading: isLoadingRate, error: rateError } = useExchangeRate();
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setResult(null);
+
     if (!usdInput) {
-      setError("Por favor, ingresá un precio en dólares.");
+      setCalculationError("Por favor, ingresá un precio en dólares.");
       return;
     }
     
     const usdPrice = parseFloat(usdInput);
     if (isNaN(usdPrice) || usdPrice <= 0) {
-      setError("Por favor, ingresá un precio válido.");
+      setCalculationError("Por favor, ingresá un precio válido.");
       return;
     }
 
     if (!exchangeRate) {
-        setError("El valor del dólar aún no está disponible. Por favor, espera un momento.");
+        setCalculationError("El valor del dólar aún no está disponible. Por favor, espera un momento.");
         return;
     }
 
-    setIsLoading(true);
-    setError(null);
-    setResult(null);
+    setIsCalculating(true);
+    setCalculationError(null);
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -95,8 +66,10 @@ export function AdminPriceCalculator() {
       profit: profit,
     });
 
-    setIsLoading(false);
+    setIsCalculating(false);
   };
+
+  const currentError = rateError || calculationError;
 
   return (
     <Card className="w-full shadow-lg overflow-hidden">
@@ -116,13 +89,13 @@ export function AdminPriceCalculator() {
             value={usdInput}
             onChange={(e) => {
                 setUsdInput(e.target.value);
-                if (error) setError(null);
+                if (calculationError) setCalculationError(null);
             }}
             className="flex-grow text-base"
             aria-label="Precio del juego en USD"
           />
-          <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !exchangeRate}>
-            {isLoading || !exchangeRate ? (
+          <Button type="submit" className="w-full sm:w-auto" disabled={isCalculating || isLoadingRate}>
+            {isCalculating || isLoadingRate ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <ArrowRight className="mr-2 h-4 w-4" />
@@ -130,12 +103,12 @@ export function AdminPriceCalculator() {
             Calcular Precio
           </Button>
         </form>
-         {!exchangeRate && !error && (
+         {isLoadingRate && (
             <p className="text-sm text-muted-foreground mt-2 text-center sm:text-left">Cargando cotización del dólar...</p>
         )}
       </CardContent>
 
-      {isLoading && (
+      {(isCalculating) && (
         <CardFooter className="flex flex-col gap-4 pt-4">
              <div className="w-full space-y-3">
                 <div className="flex justify-between items-center">
@@ -154,17 +127,17 @@ export function AdminPriceCalculator() {
         </CardFooter>
       )}
 
-      {error && (
+      {currentError && !isCalculating && (
         <CardFooter className="pt-4">
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{currentError}</AlertDescription>
             </Alert>
         </CardFooter>
       )}
 
-      {result && (
+      {result && !currentError && !isCalculating && (
         <CardFooter className="flex flex-col items-start gap-4 pt-4 animate-in fade-in-50">
              <div className="flex justify-between items-center w-full">
                  <div className="flex-1">
