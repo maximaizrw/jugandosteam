@@ -12,6 +12,7 @@ import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCurrency } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 
 type CalculationResult = {
@@ -36,6 +37,7 @@ export function PriceCalculator() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [calculationError, setCalculationError] = useState<string | null>(null);
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const { toast } = useToast();
 
   const { exchangeRate, isLoading: isLoadingRate, error: rateError } = useExchangeRate();
 
@@ -77,6 +79,19 @@ export function PriceCalculator() {
     setIsCalculating(false);
   };
   
+  const handleInstagramClick = () => {
+    if (!result) return;
+    const messageToCopy = `Quiero comprar un juego con el precio ${formatCurrency(result.prices.finalArs)}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(messageToCopy);
+      toast({
+          title: "Mensaje Copiado",
+          description: "Pega el mensaje en tu chat de Instagram.",
+      });
+    }
+    window.open("https://www.instagram.com/JUGANDOSTEAM", "_blank", "noopener,noreferrer");
+  };
+
   const currentError = rateError || calculationError;
 
   return (
@@ -159,16 +174,14 @@ export function PriceCalculator() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-                    <Link href="https://wa.me/5492804014435" target="_blank" rel="noopener noreferrer">
+                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(`Quiero comprar un juego con el precio ${formatCurrency(result.prices.finalArs)}`)}`} target="_blank" rel="noopener noreferrer">
                       <WhatsappIcon className="mr-2 h-6 w-6" />
                       Contactar por WhatsApp
                     </Link>
                   </Button>
-                  <Button asChild size="lg" className="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 text-white">
-                     <Link href="https://www.instagram.com/JUGANDOSTEAM" target="_blank" rel="noopener noreferrer">
-                        <InstagramIcon className="mr-2 h-6 w-6" />
-                        Enviar mensaje por Instagram
-                    </Link>
+                  <Button size="lg" className="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 text-white" onClick={handleInstagramClick}>
+                     <InstagramIcon className="mr-2 h-6 w-6" />
+                     Enviar mensaje por Instagram
                   </Button>
                 </div>
               </DialogContent>
