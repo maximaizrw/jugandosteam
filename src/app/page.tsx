@@ -14,7 +14,7 @@ export default function Home() {
                 </h1>
             </div>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Ingresá el link de un juego de Steam para calcular su precio final en pesos argentinos con todos los impuestos.
+            Ingresá el link de un juego de Steam para calcular tu precio de venta final, con tu 10% de ganancia incluido.
           </p>
         </header>
 
@@ -22,9 +22,9 @@ export default function Home() {
 
         <footer className="mt-12 text-center text-sm text-muted-foreground">
           <p>
-            Los precios son estimaciones y pueden variar. La tasa de cambio y los impuestos se actualizan periódicamente.
+            Los precios son estimaciones y pueden variar. La cotización del dólar se actualiza periódicamente.
           </p>
-          <p>Hecho con ❤️ para la comunidad gamer de Argentina.</p>
+          <p>Hecho con ❤️ para ayudarte a vender.</p>
         </footer>
       </div>
     </main>

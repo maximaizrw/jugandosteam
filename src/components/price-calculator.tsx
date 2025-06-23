@@ -10,12 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
 
-const TAXES = [
-  { name: "IVA Servicios Digitales", rate: 0.21 },
-  { name: "Percepción de Ganancias", rate: 0.30 },
-  { name: "Impuesto PAIS", rate: 0.08 },
-];
-
 type GameData = {
   name: string;
   image: string;
@@ -30,13 +24,7 @@ type CalculationResult = {
     baseArs: number;
     finalArs: number;
   };
-  taxes: {
-    name: string;
-    value: number;
-    rate: string;
-  }[];
-  totalTaxAmount: number;
-  totalTaxRate: number;
+  profit: number;
 };
 
 const formatCurrency = (value: number, currency = "ARS") => {
@@ -115,24 +103,14 @@ export function PriceCalculator() {
     const usdPrice = randomGame.usdPrice;
     
     const baseArs = usdPrice * exchangeRate;
-    
-    const calculatedTaxes = TAXES.map(tax => ({
-      ...tax,
-      value: baseArs * tax.rate,
-      rate: `${(tax.rate * 100).toFixed(0)}%`,
-    }));
-    
-    const totalTaxAmount = calculatedTaxes.reduce((sum, tax) => sum + tax.value, 0);
-    const totalTaxRate = TAXES.reduce((sum, tax) => sum + tax.rate, 0);
-    const finalArs = baseArs + totalTaxAmount;
+    const profit = baseArs * 0.10;
+    const finalArs = baseArs + profit;
 
     setResult({
       game: randomGame,
       exchangeRate: exchangeRate,
       prices: { baseArs, finalArs },
-      taxes: calculatedTaxes,
-      totalTaxAmount,
-      totalTaxRate
+      profit: profit,
     });
 
     setIsLoading(false);
@@ -141,9 +119,9 @@ export function PriceCalculator() {
   return (
     <Card className="w-full shadow-lg overflow-hidden">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Calculá tu juego</CardTitle>
+        <CardTitle className="font-headline text-2xl">Calculá tu precio de venta</CardTitle>
         <CardDescription>
-          Pegá el link del juego o su App ID y te mostramos el precio final.
+          Pegá el link del juego o su App ID y te mostramos el precio final de venta con tu ganancia.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -227,26 +205,24 @@ export function PriceCalculator() {
 
             <div className="w-full space-y-2 text-sm">
                 <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Precio base</span>
+                    <span className="text-muted-foreground">Precio base (costo)</span>
                     <span className="font-medium text-foreground">{formatCurrency(result.prices.baseArs)}</span>
                 </div>
-                {result.taxes.map(tax => (
-                    <div key={tax.name} className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{tax.name} ({tax.rate})</span>
-                        <span className="font-medium text-foreground">
-                            + {formatCurrency(tax.value)}
-                        </span>
-                    </div>
-                ))}
+                <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Tu ganancia (10%)</span>
+                    <span className="font-medium text-foreground">
+                        + {formatCurrency(result.profit)}
+                    </span>
+                </div>
             </div>
 
             <Separator className="my-2" />
 
             <div className="bg-accent/50 w-full p-4 rounded-lg flex justify-between items-center">
-                <span className="text-xl font-bold text-accent-foreground">Precio Final Estimado</span>
+                <span className="text-xl font-bold text-accent-foreground">Precio Final de Venta</span>
                 <span className="text-2xl font-bold text-accent-foreground">{formatCurrency(result.prices.finalArs)}</span>
             </div>
-            <p className="text-xs text-muted-foreground text-center w-full">Total de impuestos: {formatCurrency(result.totalTaxAmount)} ({(result.totalTaxRate * 100).toFixed(0)}%)</p>
+            <p className="text-xs text-muted-foreground text-center w-full">Este es el precio final al que deberías vender el juego.</p>
 
         </CardFooter>
       )}
