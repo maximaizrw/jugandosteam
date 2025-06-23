@@ -14,7 +14,7 @@ export default function Home() {
                 <div className="w-32 h-1 bg-primary rounded-full" />
             </div>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Calculá cuánto te va a costar ese juego de Steam en pesos argentinos, con todos los impuestos incluidos.
+            Ingresá el precio en dólares de un juego de Steam y te diremos el precio final en pesos si lo comprás con nosotros.
           </p>
         </header>
 
@@ -24,7 +24,7 @@ export default function Home() {
            <p>
             Los precios son estimaciones y pueden variar. La cotización del dólar y los impuestos pueden cambiar.
           </p>
-          <p className="mb-4">Hecho con ❤️ para la comunidad gamer.</p>
+          <p className="mb-4">Hecho con ❤️ por JUGANDOSTEAM</p>
         </footer>
       </div>
     </main>

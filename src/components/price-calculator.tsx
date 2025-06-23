@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowRight, Loader2, AlertCircle, TrendingUp, HelpCircle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 
 type CalculationResult = {
   usdPrice: number;
@@ -17,7 +18,6 @@ type CalculationResult = {
     baseArs: number;
     finalArs: number;
   };
-  taxes: number;
 };
 
 const formatCurrency = (value: number, currency = "ARS") => {
@@ -27,9 +27,6 @@ const formatCurrency = (value: number, currency = "ARS") => {
     minimumFractionDigits: 2,
   }).format(value);
 };
-
-// As of mid-2024. This can change.
-const TAX_RATE = 0.60; 
 
 export function PriceCalculator() {
   const [usdInput, setUsdInput] = useState("");
@@ -88,14 +85,13 @@ export function PriceCalculator() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const baseArs = usdPrice * exchangeRate;
-    const taxes = baseArs * TAX_RATE;
-    const finalArs = baseArs + taxes;
+    const finalPriceBeforeRounding = baseArs * 1.10;
+    const finalArs = Math.round(finalPriceBeforeRounding / 5) * 5;
 
     setResult({
       usdPrice: usdPrice,
       exchangeRate: exchangeRate,
       prices: { baseArs, finalArs },
-      taxes: taxes,
     });
 
     setIsLoading(false);
@@ -107,7 +103,7 @@ export function PriceCalculator() {
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Calculá el precio final</CardTitle>
         <CardDescription>
-          Ingresá el precio en dólares de un juego para saber cuánto te costará en pesos argentinos con impuestos.
+          Ingresá el precio en dólares de un juego para saber el precio final que pagarías por transferencia.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -174,7 +170,7 @@ export function PriceCalculator() {
                 <span className="text-lg font-semibold text-primary-foreground">Precio Final a Pagar</span>
                 <span className="text-4xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.finalArs)}</span>
             </div>
-            <p className="text-xs text-muted-foreground text-center w-full px-4">Este es el precio final estimado que pagarías con tarjeta, incluyendo todos los impuestos de Argentina.</p>
+            <p className="text-xs text-muted-foreground text-center w-full px-4">Este es el precio final que pagarias con transferencia</p>
         </CardFooter>
       )}
     </Card>
