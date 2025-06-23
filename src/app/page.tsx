@@ -1,7 +1,5 @@
 import { PriceCalculator } from '@/components/price-calculator';
-import { Gamepad2, UserCog } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Gamepad2 } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -27,9 +25,6 @@ export default function Home() {
             Los precios son estimaciones y pueden variar. La cotización del dólar y los impuestos pueden cambiar.
           </p>
           <p className="mb-4">Hecho con ❤️ para la comunidad gamer.</p>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin"><UserCog className="mr-2 h-4 w-4" />Acceso Vendedor</Link>
-          </Button>
         </footer>
       </div>
     </main>
