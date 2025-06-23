@@ -169,51 +169,12 @@ export function PriceCalculator() {
       )}
 
       {result && (
-        <CardFooter className="flex flex-col items-start gap-4 pt-4 animate-in fade-in-50">
-             <div className="flex justify-between items-center w-full">
-                 <div className="flex-1">
-                    <h3 className="text-muted-foreground text-sm">Precio del juego (USD)</h3>
-                    <p className="text-xl font-semibold text-foreground">{formatCurrency(result.usdPrice, "USD")}</p>
-                </div>
-                <div className="text-right p-2 border rounded-lg bg-secondary/50">
-                     <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Cripto</div>
-                    <p className="font-semibold">{formatCurrency(result.exchangeRate)}</p>
-                </div>
+        <CardFooter className="flex flex-col items-center gap-4 pt-4 animate-in fade-in-50">
+            <div className="bg-primary/90 w-full p-6 rounded-lg flex flex-col justify-center items-center text-center">
+                <span className="text-lg font-semibold text-primary-foreground">Precio Final a Pagar</span>
+                <span className="text-4xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.finalArs)}</span>
             </div>
-
-            <Separator className="my-2" />
-
-            <div className="w-full space-y-2 text-sm">
-                <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Precio base en pesos</span>
-                    <span className="font-medium text-foreground">{formatCurrency(result.prices.baseArs)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <span>Impuestos (aprox. {TAX_RATE * 100}%)</span>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Incluye Impuesto PAIS y Percepción de Ganancias.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </div>
-                    <span className="font-medium text-foreground">
-                        + {formatCurrency(result.taxes)}
-                    </span>
-                </div>
-            </div>
-
-            <Separator className="my-2" />
-
-            <div className="bg-primary/90 w-full p-4 rounded-lg flex justify-between items-center">
-                <span className="text-xl font-bold text-primary-foreground">Precio Final a Pagar</span>
-                <span className="text-2xl font-bold text-primary-foreground">{formatCurrency(result.prices.finalArs)}</span>
-            </div>
-            <p className="text-xs text-muted-foreground text-center w-full">Este es el precio final estimado que pagarías con tarjeta.</p>
-
+            <p className="text-xs text-muted-foreground text-center w-full px-4">Este es el precio final estimado que pagarías con tarjeta, incluyendo todos los impuestos de Argentina.</p>
         </CardFooter>
       )}
     </Card>
