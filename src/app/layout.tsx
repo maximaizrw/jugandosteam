@@ -5,6 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: 'JUGANDOSTEAM - Calculadora de Precios de Steam Argentina',
   description: 'Calcula el precio final de juegos de Steam en pesos argentinos, incluyendo impuestos.',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({
