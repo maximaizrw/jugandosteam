@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
 
-const MOCKED_EXCHANGE_RATE = 1100.50;
 const TAXES = [
   { name: "IVA Servicios Digitales", rate: 0.21 },
   { name: "Percepción de Ganancias", rate: 0.30 },
@@ -53,6 +52,32 @@ export function PriceCalculator() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const response = await fetch("https://dolarapi.com/v1/dolares/cripto");
+        if (!response.ok) {
+          throw new Error("No se pudo obtener el valor del dólar en este momento.");
+        }
+        const data = await response.json();
+        if (data && data.venta) {
+          setExchangeRate(data.venta);
+        } else {
+          throw new Error("La respuesta de la API de dólar no es válida.");
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Ocurrió un error al obtener el valor del dólar.");
+        }
+      }
+    };
+
+    fetchExchangeRate();
+  }, []);
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +86,11 @@ export function PriceCalculator() {
       return;
     }
     
+    if (!exchangeRate) {
+        setError("El valor del dólar aún no está disponible. Por favor, espera un momento.");
+        return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResult(null);
@@ -84,7 +114,7 @@ export function PriceCalculator() {
     const randomGame = mockGames[Math.floor(Math.random() * mockGames.length)];
     const usdPrice = randomGame.usdPrice;
     
-    const baseArs = usdPrice * MOCKED_EXCHANGE_RATE;
+    const baseArs = usdPrice * exchangeRate;
     
     const calculatedTaxes = TAXES.map(tax => ({
       ...tax,
@@ -98,7 +128,7 @@ export function PriceCalculator() {
 
     setResult({
       game: randomGame,
-      exchangeRate: MOCKED_EXCHANGE_RATE,
+      exchangeRate: exchangeRate,
       prices: { baseArs, finalArs },
       taxes: calculatedTaxes,
       totalTaxAmount,
@@ -124,13 +154,13 @@ export function PriceCalculator() {
             value={steamUrl}
             onChange={(e) => {
                 setSteamUrl(e.target.value);
-                setError(null);
+                if (error) setError(null);
             }}
             className="flex-grow text-base"
             aria-label="URL o App ID de Steam"
           />
-          <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !exchangeRate}>
+            {isLoading || !exchangeRate ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <ArrowRight className="mr-2 h-4 w-4" />
@@ -138,6 +168,9 @@ export function PriceCalculator() {
             Calcular Precio
           </Button>
         </form>
+         {!exchangeRate && !error && (
+            <p className="text-sm text-muted-foreground mt-2 text-center sm:text-left">Cargando cotización del dólar...</p>
+        )}
       </CardContent>
 
       {isLoading && (
@@ -185,7 +218,7 @@ export function PriceCalculator() {
                     <p className="text-lg text-muted-foreground">{formatCurrency(result.game.usdPrice, "USD")}</p>
                 </div>
                 <div className="text-right p-2 border rounded-lg bg-secondary/50">
-                    <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Tarjeta</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Cripto</div>
                     <p className="font-semibold">{formatCurrency(result.exchangeRate)}</p>
                 </div>
             </div>
