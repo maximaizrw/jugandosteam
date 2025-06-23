@@ -180,7 +180,7 @@ export function PriceCalculator() {
                 <span className="text-lg font-semibold text-primary-foreground">Precio Final a Pagar</span>
                 <span className="text-4xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.finalArs)}</span>
             </div>
-            <p className="text-xs text-muted-foreground text-center w-full px-4">Este es el precio final que pagarias con transferencia</p>
+            <p className="text-xs text-muted-foreground text-center w-full px-4">Este es el precio final que pagarías por transferencia. Si pagás con tarjeta, se aplica un 10% de recargo.</p>
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="w-full mt-2" size="lg">
