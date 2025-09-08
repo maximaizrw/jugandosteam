@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCurrency } from "@/lib/utils";
@@ -17,10 +17,13 @@ import { useToast } from "@/hooks/use-toast";
 
 type CalculationResult = {
   usdPrice: number;
-  exchangeRate: number;
+  exchangeRates: {
+    crypto: number;
+    card: number;
+  };
   prices: {
-    baseArs: number;
-    finalArs: number;
+    transfer: number;
+    card: number;
   };
 };
 
@@ -39,7 +42,7 @@ export function PriceCalculator() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const { toast } = useToast();
 
-  const { exchangeRate, isLoading: isLoadingRate, error: rateError } = useExchangeRate();
+  const { exchangeRates, isLoading: isLoadingRate, error: rateError } = useExchangeRate();
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +59,7 @@ export function PriceCalculator() {
       return;
     }
 
-    if (!exchangeRate) {
+    if (!exchangeRates) {
         setCalculationError("El valor del dólar aún no está disponible. Por favor, espera un momento.");
         return;
     }
@@ -66,14 +69,21 @@ export function PriceCalculator() {
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const baseArs = usdPrice * exchangeRate;
-    const finalPriceBeforeRounding = baseArs * 1.10;
-    const finalArs = Math.round(finalPriceBeforeRounding / 5) * 5;
+    // Calculate price for transfer (using crypto rate + 5% profit)
+    const transferPriceBase = usdPrice * exchangeRates.crypto;
+    const transferPriceFinal = Math.round((transferPriceBase * 1.05) / 5) * 5;
+
+    // Calculate price for card (using card rate + 5% profit)
+    const cardPriceBase = usdPrice * exchangeRates.card;
+    const cardPriceFinal = Math.round((cardPriceBase * 1.05) / 5) * 5;
 
     setResult({
       usdPrice: usdPrice,
-      exchangeRate: exchangeRate,
-      prices: { baseArs, finalArs },
+      exchangeRates: exchangeRates,
+      prices: { 
+        transfer: transferPriceFinal,
+        card: cardPriceFinal,
+       },
     });
 
     setIsCalculating(false);
@@ -81,7 +91,7 @@ export function PriceCalculator() {
   
   const handleInstagramClick = () => {
     if (!result) return;
-    const messageToCopy = `Quiero comprar un juego con el precio ${formatCurrency(result.prices.finalArs)}`;
+    const messageToCopy = `Hola! Quiero comprar un juego. El precio por transferencia es ${formatCurrency(result.prices.transfer)} y con tarjeta es ${formatCurrency(result.prices.card)}. ¿Cómo seguimos?`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(messageToCopy);
       toast({
@@ -100,7 +110,7 @@ export function PriceCalculator() {
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Calculá el precio final</CardTitle>
         <CardDescription>
-          Ingresá el precio en dólares de un juego para saber el precio final que pagarías por transferencia.
+          Ingresá el precio en dólares para saber el precio final en pesos.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -128,7 +138,7 @@ export function PriceCalculator() {
           </Button>
         </form>
          {isLoadingRate && (
-            <p className="text-sm text-muted-foreground mt-2 text-center sm:text-left">Cargando cotización del dólar...</p>
+            <p className="text-sm text-muted-foreground mt-2 text-center sm:text-left">Cargando cotizaciones del dólar...</p>
         )}
       </CardContent>
 
@@ -154,15 +164,21 @@ export function PriceCalculator() {
 
       {result && !currentError && !isCalculating && (
         <CardFooter className="flex flex-col items-stretch gap-4 pt-4 animate-in fade-in-50">
-            <div className="bg-primary/90 w-full p-6 rounded-lg flex flex-col justify-center items-center text-center">
-                <span className="text-lg font-semibold text-primary-foreground">Precio Final a Pagar</span>
-                <span className="text-4xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.finalArs)}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-primary/90 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                    <span className="text-base font-semibold text-primary-foreground">Por Transferencia</span>
+                    <span className="text-3xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.transfer)}</span>
+                </div>
+                <div className="bg-secondary/80 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                    <span className="text-base font-semibold text-secondary-foreground">Con Tarjeta</span>
+                    <span className="text-3xl font-bold text-secondary-foreground mt-1">{formatCurrency(result.prices.card)}</span>
+                </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center w-full px-4">Este es el precio final que pagarías por transferencia. Si pagás con tarjeta, se aplica un 10% de recargo.</p>
+            <p className="text-xs text-muted-foreground text-center w-full px-4">Estos son los precios finales estimados que pagarías.</p>
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="w-full mt-2" size="lg">
-                  Comprar con transferencia
+                  Comprar ahora
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
@@ -174,7 +190,7 @@ export function PriceCalculator() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(`Quiero comprar un juego con el precio ${formatCurrency(result.prices.finalArs)}`)}`} target="_blank" rel="noopener noreferrer">
+                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(`Hola! Quiero comprar un juego. El precio por transferencia es ${formatCurrency(result.prices.transfer)} y con tarjeta es ${formatCurrency(result.prices.card)}. ¿Cómo seguimos?`)}`} target="_blank" rel="noopener noreferrer">
                       <WhatsappIcon className="mr-2 h-6 w-6" />
                       Contactar por WhatsApp
                     </Link>
