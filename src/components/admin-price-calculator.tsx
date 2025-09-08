@@ -17,12 +17,16 @@ type CalculationResult = {
     crypto: number;
     card: number;
   };
+  costs: {
+    crypto: number;
+    card: number;
+  };
   prices: {
-    transfer: number;
+    crypto: number;
     card: number;
   };
   profit: {
-    transfer: number;
+    crypto: number;
     card: number;
   };
 };
@@ -60,12 +64,12 @@ export function AdminPriceCalculator() {
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Transfer price (based on crypto rate)
-    const baseArsTransfer = usdPrice * exchangeRates.crypto;
-    const finalPriceTransfer = Math.round((baseArsTransfer * 1.05) / 5) * 5;
-    const profitTransfer = finalPriceTransfer - baseArsTransfer;
+    // Crypto price calculation
+    const baseArsCrypto = usdPrice * exchangeRates.crypto;
+    const finalPriceCrypto = Math.round((baseArsCrypto * 1.05) / 5) * 5;
+    const profitCrypto = finalPriceCrypto - baseArsCrypto;
 
-    // Card price (based on card rate)
+    // Card price calculation
     const baseArsCard = usdPrice * exchangeRates.card;
     const finalPriceCard = Math.round((baseArsCard * 1.05) / 5) * 5;
     const profitCard = finalPriceCard - baseArsCard;
@@ -73,8 +77,18 @@ export function AdminPriceCalculator() {
     setResult({
       usdPrice: usdPrice,
       exchangeRates: exchangeRates,
-      prices: { transfer: finalPriceTransfer, card: finalPriceCard },
-      profit: { transfer: profitTransfer, card: profitCard },
+      costs: {
+        crypto: baseArsCrypto,
+        card: baseArsCard,
+      },
+      prices: { 
+        crypto: finalPriceCrypto, 
+        card: finalPriceCard 
+      },
+      profit: { 
+        crypto: profitCrypto, 
+        card: profitCard 
+      },
     });
 
     setIsCalculating(false);
@@ -87,7 +101,7 @@ export function AdminPriceCalculator() {
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Calculá tu precio de venta</CardTitle>
         <CardDescription>
-          Ingresá el costo en dólares del juego y calcularemos los precios de venta con tu ganancia del 5%.
+          Ingresá el costo en dólares del juego para obtener los precios de venta con tu ganancia del 5%.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -142,12 +156,11 @@ export function AdminPriceCalculator() {
       {result && !currentError && !isCalculating && (
         <CardFooter className="flex flex-col items-start gap-6 pt-4 animate-in fade-in-50">
             <div className="w-full space-y-4">
-              {/* Transfer Calculation */}
+              {/* Crypto Calculation */}
               <div className="p-4 border rounded-lg">
                   <div className="flex justify-between items-center w-full mb-3">
                       <div>
-                          <h3 className="font-semibold text-lg text-primary">Venta por Transferencia</h3>
-                          <p className="text-sm text-muted-foreground">Basado en Dólar Cripto</p>
+                          <h3 className="font-semibold text-lg text-primary">Cálculo con Dólar Cripto</h3>
                       </div>
                       <div className="text-right p-2 border rounded-lg bg-secondary/50">
                           <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Cripto</div>
@@ -156,12 +169,13 @@ export function AdminPriceCalculator() {
                   </div>
                   <Separator className="my-2" />
                   <div className="space-y-1 text-sm">
-                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia</span><span className="font-medium">+ {formatCurrency(result.profit.transfer)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Costo base (USD a ARS)</span><span className="font-medium">{formatCurrency(result.costs.crypto)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia (5%)</span><span className="font-medium text-green-400">+ {formatCurrency(result.profit.crypto)}</span></div>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center mt-2">
                       <span className="text-lg font-bold">Precio Final de Venta</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(result.prices.transfer)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(result.prices.crypto)}</span>
                   </div>
               </div>
 
@@ -169,8 +183,7 @@ export function AdminPriceCalculator() {
               <div className="p-4 border rounded-lg">
                   <div className="flex justify-between items-center w-full mb-3">
                       <div>
-                          <h3 className="font-semibold text-lg text-accent">Venta con Tarjeta</h3>
-                          <p className="text-sm text-muted-foreground">Basado en Dólar Tarjeta</p>
+                          <h3 className="font-semibold text-lg text-accent">Cálculo con Dólar Tarjeta</h3>
                       </div>
                        <div className="text-right p-2 border rounded-lg bg-secondary/50">
                           <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Tarjeta</div>
@@ -179,7 +192,8 @@ export function AdminPriceCalculator() {
                   </div>
                    <Separator className="my-2" />
                   <div className="space-y-1 text-sm">
-                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia</span><span className="font-medium">+ {formatCurrency(result.profit.card)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Costo base (USD a ARS)</span><span className="font-medium">{formatCurrency(result.costs.card)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia (5%)</span><span className="font-medium text-green-400">+ {formatCurrency(result.profit.card)}</span></div>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center mt-2">
