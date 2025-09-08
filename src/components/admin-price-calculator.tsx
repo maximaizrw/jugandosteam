@@ -64,12 +64,12 @@ export function AdminPriceCalculator() {
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Crypto price calculation
+    // Crypto price calculation (10% profit)
     const baseArsCrypto = usdPrice * exchangeRates.crypto;
-    const finalPriceCrypto = Math.round((baseArsCrypto * 1.05) / 5) * 5;
+    const finalPriceCrypto = Math.round((baseArsCrypto * 1.10) / 5) * 5;
     const profitCrypto = finalPriceCrypto - baseArsCrypto;
 
-    // Card price calculation
+    // Card price calculation (5% profit)
     const baseArsCard = usdPrice * exchangeRates.card;
     const finalPriceCard = Math.round((baseArsCard * 1.05) / 5) * 5;
     const profitCard = finalPriceCard - baseArsCard;
@@ -101,7 +101,7 @@ export function AdminPriceCalculator() {
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Calculá tu precio de venta</CardTitle>
         <CardDescription>
-          Ingresá el costo en dólares del juego para obtener los precios de venta con tu ganancia del 5%.
+          Ingresá el costo en dólares para obtener los precios de venta con tu ganancia (10% en cripto, 5% en tarjeta).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -170,7 +170,7 @@ export function AdminPriceCalculator() {
                   <Separator className="my-2" />
                   <div className="space-y-1 text-sm">
                       <div className="flex justify-between"><span className="text-muted-foreground">Costo base (USD a ARS)</span><span className="font-medium">{formatCurrency(result.costs.crypto)}</span></div>
-                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia (5%)</span><span className="font-medium text-green-400">+ {formatCurrency(result.profit.crypto)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia (10%)</span><span className="font-medium text-green-400">+ {formatCurrency(result.profit.crypto)}</span></div>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center mt-2">

@@ -69,9 +69,9 @@ export function PriceCalculator() {
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Calculate price for transfer (using crypto rate + 5% profit)
+    // Calculate price for transfer (using crypto rate + 10% profit)
     const transferPriceBase = usdPrice * exchangeRates.crypto;
-    const transferPriceFinal = Math.round((transferPriceBase * 1.05) / 5) * 5;
+    const transferPriceFinal = Math.round((transferPriceBase * 1.10) / 5) * 5;
 
     // Calculate price for card (using card rate + 5% profit)
     const cardPriceBase = usdPrice * exchangeRates.card;
