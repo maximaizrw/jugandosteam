@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 type ExchangeRates = {
   crypto: number;
   card: number;
+  eneba: number;
 };
 
 export function useExchangeRate() {
@@ -33,6 +34,7 @@ export function useExchangeRate() {
           setExchangeRates({
             crypto: cryptoData.venta,
             card: cardData.venta,
+            eneba: 1480,
           });
         } else {
           throw new Error("La respuesta de la API de dólar no es válida.");
