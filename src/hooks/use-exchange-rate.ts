@@ -5,7 +5,11 @@ import { useState, useEffect, useCallback } from 'react';
 type ExchangeRates = {
   crypto: number;
   card: number;
+<<<<<<< HEAD
   custom: number;
+=======
+  eneba: number;
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
 };
 
 const CUSTOM_RATE_STORAGE_KEY = 'custom_dollar_rate';
@@ -41,7 +45,11 @@ export function useExchangeRate() {
           setExchangeRates({
             crypto: cryptoData.venta,
             card: cardData.venta,
+<<<<<<< HEAD
             custom: customRate,
+=======
+            eneba: 1480,
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
           });
         } else {
           throw new Error("La respuesta de la API de dólar no es válida.");

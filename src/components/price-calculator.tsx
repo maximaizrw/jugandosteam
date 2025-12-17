@@ -17,10 +17,19 @@ import { useToast } from "@/hooks/use-toast";
 
 type CalculationResult = {
   usdPrice: number;
+<<<<<<< HEAD
+=======
+  exchangeRates: {
+    crypto: number;
+    card: number;
+    eneba: number;
+  };
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   prices: {
     custom: number;
     transfer: number;
     card: number;
+    eneba: number;
   };
 };
 
@@ -78,12 +87,17 @@ export function PriceCalculator() {
     const cardPriceBase = usdPrice * exchangeRates.card;
     const cardPriceFinal = Math.round((cardPriceBase * 1.05) / 5) * 5;
 
+    // Calculate price for eneba (using eneba rate + 10% profit)
+    const enebaPriceBase = usdPrice * exchangeRates.eneba;
+    const enebaPriceFinal = Math.round((enebaPriceBase * 1.10) / 5) * 5;
+
     setResult({
       usdPrice: usdPrice,
       prices: { 
         custom: customPriceFinal,
         transfer: transferPriceFinal,
         card: cardPriceFinal,
+        eneba: enebaPriceFinal,
        },
     });
 
@@ -96,7 +110,12 @@ export function PriceCalculator() {
   };
 
   const handleInstagramClick = () => {
+<<<<<<< HEAD
     const messageToCopy = generateMessage();
+=======
+    if (!result) return;
+    const messageToCopy = `Hola! Quiero comprar un juego. Los precios son: Transferencia ${formatCurrency(result.prices.transfer)}, Tarjeta ${formatCurrency(result.prices.card)}, Eneba ${formatCurrency(result.prices.eneba)}. ¿Cómo seguimos?`;
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
     if (navigator.clipboard) {
       navigator.clipboard.writeText(messageToCopy);
       toast({
@@ -169,7 +188,7 @@ export function PriceCalculator() {
 
       {result && !currentError && !isCalculating && (
         <CardFooter className="flex flex-col items-stretch gap-4 pt-4 animate-in fade-in-50">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-primary/90 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center">
                     <span className="text-base font-semibold text-primary-foreground">Personalizado</span>
                     <span className="text-3xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.custom)}</span>
@@ -181,6 +200,10 @@ export function PriceCalculator() {
                 <div className="bg-secondary/80 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center col-span-1 sm:col-span-2">
                     <span className="text-base font-semibold text-secondary-foreground">Con Tarjeta</span>
                     <span className="text-3xl font-bold text-secondary-foreground mt-1">{formatCurrency(result.prices.card)}</span>
+                </div>
+                 <div className="w-full p-4 rounded-lg flex flex-col justify-center items-center text-center" style={{backgroundColor: 'hsl(var(--chart-4))'}}>
+                    <span className="text-base font-semibold text-primary-foreground">Por Eneba</span>
+                    <span className="text-3xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.eneba)}</span>
                 </div>
             </div>
             <p className="text-xs text-muted-foreground text-center w-full px-4">Estos son los precios finales estimados que pagarías.</p>
@@ -199,7 +222,11 @@ export function PriceCalculator() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
+<<<<<<< HEAD
                     <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(generateMessage())}`} target="_blank" rel="noopener noreferrer">
+=======
+                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(`Hola! Quiero comprar un juego. Los precios son: Transferencia ${formatCurrency(result.prices.transfer)}, Tarjeta ${formatCurrency(result.prices.card)}, Eneba ${formatCurrency(result.prices.eneba)}. ¿Cómo seguimos?`)}`} target="_blank" rel="noopener noreferrer">
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
                       <WhatsappIcon className="mr-2 h-6 w-6" />
                       Contactar por WhatsApp
                     </Link>

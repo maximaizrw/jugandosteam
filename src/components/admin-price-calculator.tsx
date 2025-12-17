@@ -18,22 +18,38 @@ type CalculationResult = {
   exchangeRates: {
     crypto: number;
     card: number;
+<<<<<<< HEAD
     custom: number;
+=======
+    eneba: number;
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   };
   costs: {
     crypto: number;
     card: number;
+<<<<<<< HEAD
     custom: number;
+=======
+    eneba: number;
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   };
   prices: {
     crypto: number;
     card: number;
+<<<<<<< HEAD
     custom: number;
+=======
+    eneba: number;
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   };
   profit: {
     crypto: number;
     card: number;
+<<<<<<< HEAD
     custom: number;
+=======
+    eneba: number;
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   };
 };
 
@@ -104,10 +120,18 @@ export function AdminPriceCalculator() {
     const finalPriceCard = Math.round((baseArsCard * 1.05) / 5) * 5;
     const profitCard = finalPriceCard - baseArsCard;
 
+<<<<<<< HEAD
     // Custom price calculation (10% profit)
     const baseArsCustom = usdPrice * exchangeRates.custom;
     const finalPriceCustom = Math.round((baseArsCustom * 1.10) / 5) * 5;
     const profitCustom = finalPriceCustom - baseArsCustom;
+=======
+    // Eneba price calculation (10% profit)
+    const baseArsEneba = usdPrice * exchangeRates.eneba;
+    const finalPriceEneba = Math.round((baseArsEneba * 1.10) / 5) * 5;
+    const profitEneba = finalPriceEneba - baseArsEneba;
+
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
 
     setResult({
       usdPrice: usdPrice,
@@ -115,17 +139,29 @@ export function AdminPriceCalculator() {
       costs: {
         crypto: baseArsCrypto,
         card: baseArsCard,
+<<<<<<< HEAD
         custom: baseArsCustom,
+=======
+        eneba: baseArsEneba,
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
       },
       prices: { 
         crypto: finalPriceCrypto, 
         card: finalPriceCard,
+<<<<<<< HEAD
         custom: finalPriceCustom,
+=======
+        eneba: finalPriceEneba,
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
       },
       profit: { 
         crypto: profitCrypto, 
         card: profitCard,
+<<<<<<< HEAD
         custom: profitCustom,
+=======
+        eneba: profitEneba,
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
       },
     });
 
@@ -135,6 +171,7 @@ export function AdminPriceCalculator() {
   const currentError = rateError || calculationError;
 
   return (
+<<<<<<< HEAD
     <div className="space-y-6">
       <Card className="w-full shadow-lg">
         <CardHeader>
@@ -144,6 +181,17 @@ export function AdminPriceCalculator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center gap-3">
+=======
+    <Card className="w-full shadow-lg overflow-hidden">
+      <CardHeader>
+        <CardTitle className="font-headline text-2xl">Calculá tu precio de venta</CardTitle>
+        <CardDescription>
+          Ingresá el costo en dólares para obtener los precios de venta con tu ganancia (10% en cripto y eneba, 5% en tarjeta).
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleCalculate} className="flex flex-col sm:flex-row items-center gap-3">
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
           <Input
             type="number"
             placeholder="1500"
@@ -292,9 +340,62 @@ export function AdminPriceCalculator() {
                     </div>
                 </div>
               </div>
+<<<<<<< HEAD
           </CardFooter>
         )}
       </Card>
     </div>
+=======
+
+              {/* Card Calculation */}
+              <div className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-center w-full mb-3">
+                      <div>
+                          <h3 className="font-semibold text-lg text-accent">Cálculo con Dólar Tarjeta</h3>
+                      </div>
+                       <div className="text-right p-2 border rounded-lg bg-secondary/50">
+                          <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Tarjeta</div>
+                          <p className="font-semibold">{formatCurrency(result.exchangeRates.card)}</p>
+                      </div>
+                  </div>
+                   <Separator className="my-2" />
+                  <div className="space-y-1 text-sm">
+                      <div className="flex justify-between"><span className="text-muted-foreground">Costo base (USD a ARS)</span><span className="font-medium">{formatCurrency(result.costs.card)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia (5%)</span><span className="font-medium text-green-400">+ {formatCurrency(result.profit.card)}</span></div>
+                  </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between items-center mt-2">
+                      <span className="text-lg font-bold">Precio Final de Venta</span>
+                      <span className="text-2xl font-bold text-accent">{formatCurrency(result.prices.card)}</span>
+                  </div>
+              </div>
+
+               {/* Eneba Calculation */}
+              <div className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-center w-full mb-3">
+                      <div>
+                          <h3 className="font-semibold text-lg" style={{color: 'hsl(var(--chart-4))'}}>Cálculo con Dólar Eneba</h3>
+                      </div>
+                       <div className="text-right p-2 border rounded-lg bg-secondary/50">
+                          <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><TrendingUp size={12}/> Dólar Eneba</div>
+                          <p className="font-semibold">{formatCurrency(result.exchangeRates.eneba)}</p>
+                      </div>
+                  </div>
+                   <Separator className="my-2" />
+                  <div className="space-y-1 text-sm">
+                      <div className="flex justify-between"><span className="text-muted-foreground">Costo base (USD a ARS)</span><span className="font-medium">{formatCurrency(result.costs.eneba)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Tu ganancia (10%)</span><span className="font-medium text-green-400">+ {formatCurrency(result.profit.eneba)}</span></div>
+                  </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between items-center mt-2">
+                      <span className="text-lg font-bold">Precio Final de Venta</span>
+                      <span className="text-2xl font-bold" style={{color: 'hsl(var(--chart-4))'}}>{formatCurrency(result.prices.eneba)}</span>
+                  </div>
+              </div>
+            </div>
+        </CardFooter>
+      )}
+    </Card>
+>>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   );
 }
