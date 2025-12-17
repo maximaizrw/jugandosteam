@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type ExchangeRates = {
   crypto: number;
   card: number;
+  custom: number;
 };
+
+const CUSTOM_RATE_STORAGE_KEY = 'custom_dollar_rate';
 
 export function useExchangeRate() {
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates | null>(null);
@@ -17,6 +20,7 @@ export function useExchangeRate() {
       setIsLoading(true);
       setError(null);
       try {
+        // Fetch exchange rates from API
         const [cryptoResponse, cardResponse] = await Promise.all([
           fetch("https://dolarapi.com/v1/dolares/cripto"),
           fetch("https://dolarapi.com/v1/dolares/tarjeta"),
@@ -29,10 +33,15 @@ export function useExchangeRate() {
         const cryptoData = await cryptoResponse.json();
         const cardData = await cardResponse.json();
 
+        // Get custom rate from localStorage
+        const savedCustomRate = localStorage.getItem(CUSTOM_RATE_STORAGE_KEY);
+        const customRate = savedCustomRate ? parseFloat(savedCustomRate) : 1500; // Default custom value
+
         if (cryptoData && cryptoData.venta && cardData && cardData.venta) {
           setExchangeRates({
             crypto: cryptoData.venta,
             card: cardData.venta,
+            custom: customRate,
           });
         } else {
           throw new Error("La respuesta de la API de dólar no es válida.");
@@ -52,5 +61,17 @@ export function useExchangeRate() {
     fetchExchangeRates();
   }, []);
 
-  return { exchangeRates, isLoading, error };
+  const setCustomRate = useCallback((rate: number) => {
+    try {
+      localStorage.setItem(CUSTOM_RATE_STORAGE_KEY, rate.toString());
+      setExchangeRates(prevRates => {
+        if (!prevRates) return null;
+        return { ...prevRates, custom: rate };
+      });
+    } catch (error) {
+      console.error("Failed to save custom rate:", error);
+    }
+  }, []);
+
+  return { exchangeRates, isLoading, error, setCustomRate };
 }

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowRight, Loader2, AlertCircle, TrendingUp } from "lucide-react";
+import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { formatCurrency } from "@/lib/utils";
@@ -17,11 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 
 type CalculationResult = {
   usdPrice: number;
-  exchangeRates: {
-    crypto: number;
-    card: number;
-  };
   prices: {
+    custom: number;
     transfer: number;
     card: number;
   };
@@ -68,6 +65,10 @@ export function PriceCalculator() {
     setCalculationError(null);
 
     await new Promise((resolve) => setTimeout(resolve, 500));
+    
+    // Custom price
+    const customPriceBase = usdPrice * exchangeRates.custom;
+    const customPriceFinal = Math.round((customPriceBase * 1.10) / 5) * 5;
 
     // Calculate price for transfer (using crypto rate + 10% profit)
     const transferPriceBase = usdPrice * exchangeRates.crypto;
@@ -79,8 +80,8 @@ export function PriceCalculator() {
 
     setResult({
       usdPrice: usdPrice,
-      exchangeRates: exchangeRates,
       prices: { 
+        custom: customPriceFinal,
         transfer: transferPriceFinal,
         card: cardPriceFinal,
        },
@@ -89,9 +90,13 @@ export function PriceCalculator() {
     setIsCalculating(false);
   };
   
+  const generateMessage = () => {
+    if (!result) return "";
+    return `Hola! Quiero comprar un juego. Los precios son: Personalizado: ${formatCurrency(result.prices.custom)}, Transferencia: ${formatCurrency(result.prices.transfer)}, Tarjeta: ${formatCurrency(result.prices.card)}. ¿Cómo seguimos?`;
+  };
+
   const handleInstagramClick = () => {
-    if (!result) return;
-    const messageToCopy = `Hola! Quiero comprar un juego. El precio por transferencia es ${formatCurrency(result.prices.transfer)} y con tarjeta es ${formatCurrency(result.prices.card)}. ¿Cómo seguimos?`;
+    const messageToCopy = generateMessage();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(messageToCopy);
       toast({
@@ -166,10 +171,14 @@ export function PriceCalculator() {
         <CardFooter className="flex flex-col items-stretch gap-4 pt-4 animate-in fade-in-50">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-primary/90 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center">
-                    <span className="text-base font-semibold text-primary-foreground">Por Transferencia</span>
-                    <span className="text-3xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.transfer)}</span>
+                    <span className="text-base font-semibold text-primary-foreground">Personalizado</span>
+                    <span className="text-3xl font-bold text-primary-foreground mt-1">{formatCurrency(result.prices.custom)}</span>
                 </div>
-                <div className="bg-secondary/80 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                 <div className="bg-accent/90 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center">
+                    <span className="text-base font-semibold text-accent-foreground">Por Transferencia</span>
+                    <span className="text-3xl font-bold text-accent-foreground mt-1">{formatCurrency(result.prices.transfer)}</span>
+                </div>
+                <div className="bg-secondary/80 w-full p-4 rounded-lg flex flex-col justify-center items-center text-center col-span-1 sm:col-span-2">
                     <span className="text-base font-semibold text-secondary-foreground">Con Tarjeta</span>
                     <span className="text-3xl font-bold text-secondary-foreground mt-1">{formatCurrency(result.prices.card)}</span>
                 </div>
@@ -190,7 +199,7 @@ export function PriceCalculator() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(`Hola! Quiero comprar un juego. El precio por transferencia es ${formatCurrency(result.prices.transfer)} y con tarjeta es ${formatCurrency(result.prices.card)}. ¿Cómo seguimos?`)}`} target="_blank" rel="noopener noreferrer">
+                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(generateMessage())}`} target="_blank" rel="noopener noreferrer">
                       <WhatsappIcon className="mr-2 h-6 w-6" />
                       Contactar por WhatsApp
                     </Link>

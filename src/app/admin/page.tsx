@@ -84,7 +84,7 @@ export default function AdminHome() {
             </div>
             <h2 className="text-3xl font-semibold tracking-tight text-foreground mt-2">Panel de Administrador</h2>
           <p className="text-muted-foreground max-w-lg mx-auto mt-2">
-            Ingresá el precio en dólares de un juego para calcular tu precio de venta final, con tu 10% de ganancia incluido.
+            Gestioná tus cotizaciones y calculá tus precios de venta.
           </p>
         </header>
 
