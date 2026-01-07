@@ -17,14 +17,6 @@ import { useToast } from "@/hooks/use-toast";
 
 type CalculationResult = {
   usdPrice: number;
-<<<<<<< HEAD
-=======
-  exchangeRates: {
-    crypto: number;
-    card: number;
-    eneba: number;
-  };
->>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
   prices: {
     custom: number;
     transfer: number;
@@ -106,16 +98,11 @@ export function PriceCalculator() {
   
   const generateMessage = () => {
     if (!result) return "";
-    return `Hola! Quiero comprar un juego. Los precios son: Personalizado: ${formatCurrency(result.prices.custom)}, Transferencia: ${formatCurrency(result.prices.transfer)}, Tarjeta: ${formatCurrency(result.prices.card)}. ¿Cómo seguimos?`;
+    return `Hola! Quiero comprar un juego. Los precios son: Personalizado: ${formatCurrency(result.prices.custom)}, Transferencia: ${formatCurrency(result.prices.transfer)}, Tarjeta: ${formatCurrency(result.prices.card)}, Eneba: ${formatCurrency(result.prices.eneba)}. ¿Cómo seguimos?`;
   };
 
   const handleInstagramClick = () => {
-<<<<<<< HEAD
     const messageToCopy = generateMessage();
-=======
-    if (!result) return;
-    const messageToCopy = `Hola! Quiero comprar un juego. Los precios son: Transferencia ${formatCurrency(result.prices.transfer)}, Tarjeta ${formatCurrency(result.prices.card)}, Eneba ${formatCurrency(result.prices.eneba)}. ¿Cómo seguimos?`;
->>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
     if (navigator.clipboard) {
       navigator.clipboard.writeText(messageToCopy);
       toast({
@@ -222,11 +209,7 @@ export function PriceCalculator() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-<<<<<<< HEAD
                     <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(generateMessage())}`} target="_blank" rel="noopener noreferrer">
-=======
-                    <Link href={`https://wa.me/5492804014435?text=${encodeURIComponent(`Hola! Quiero comprar un juego. Los precios son: Transferencia ${formatCurrency(result.prices.transfer)}, Tarjeta ${formatCurrency(result.prices.card)}, Eneba ${formatCurrency(result.prices.eneba)}. ¿Cómo seguimos?`)}`} target="_blank" rel="noopener noreferrer">
->>>>>>> 97ee1a8e5d4cf3a95c27efd1a214f3c85431ab86
                       <WhatsappIcon className="mr-2 h-6 w-6" />
                       Contactar por WhatsApp
                     </Link>
@@ -244,3 +227,5 @@ export function PriceCalculator() {
     </TooltipProvider>
   );
 }
+
+    
